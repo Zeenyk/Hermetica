@@ -25,11 +25,19 @@ int main() {
     cout<<(BN_dec2bn(&q, qString) ? "Number initialized correctly" : "Error initializing the number")<<endl;
 
 
-
     //un elemento dedlla coppia della chiave sia pubblica sia privata
     BIGNUM *n = BN_new();
+    BIGNUM *phi = BN_new();
 
     cout<<(BN_mul(n, p, q, ctx) ? "Multiplication executed with success" : "Error multiplying the numbers")<<endl;
+
+    BN_sub_word(p, 1);
+    BN_sub_word(q, 1);
+
+    cout<<(BN_mul(phi, p, q, ctx) ? "Multiplication executed with success" : "Error multiplying the numbers")<<endl;
+
+    BN_add_word(p, 1);
+    BN_add_word(q, 1);
 
 
     //dealloco la memoria
@@ -38,6 +46,10 @@ int main() {
     BN_free(n);
     BN_CTX_free(ctx);
     return 0;
+}
+
+void log(){
+    
 }
 
 
