@@ -25,8 +25,10 @@ int main() {
     cout<<(BN_dec2bn(&q, qString) ? "Number initialized correctly" : "Error initializing the number")<<endl;
 
 
-    //un elemento dedlla coppia della chiave sia pubblica sia privata
+    //un elemento della coppia della chiave sia pubblica sia privata
     BIGNUM *n = BN_new();
+
+    //il modulo per calcolare l'inverso modulare di e
     BIGNUM *phi = BN_new();
 
     cout<<(BN_mul(n, p, q, ctx) ? "Multiplication executed with success" : "Error multiplying the numbers")<<endl;
@@ -44,6 +46,7 @@ int main() {
     BN_free(p);
     BN_free(q);
     BN_free(n);
+    BN_free(phi);
     BN_CTX_free(ctx);
     return 0;
 }
