@@ -19,6 +19,8 @@ $$
 \phi(n) = (p-1) \cdot (q-1)
 $$
 
+**N.B.:** la dimensione di $n$ deve essere strettamente minore di quella del messaggio $m$.
+
 Successivamente troviamo un numero $e$ che deve essere coprimo con $\phi(n)$.
 
 Infine ricaviamo il numer $d$, tale che:
@@ -47,7 +49,24 @@ n = a \cdot q + r
 $$
 
 **2. Ripeti** il processo sostituendo $n$ con $a$, e $a$ con $r$, fino a quando non trovi $r = 0$.
-**3. Riscrivi** l'ultima relazionme trovata in cui $r \not= 0$. Poi puoi sostituire la $a$ con il resto $r$ dell'equazione precedente dal momento ch $a$ è definita estattamente in questo modo.
-Iteri queste sostituzioni fino a ritrovare
+**3. Riscrivi** l'ultima relazionme trovata in cui $r \not= 0$. Poi puoi sostituire la $a$ con il resto $r$ dell'equazione precedente dal momento che $a$ è definita estattamente in questo modo.
+Iteri queste sostituzioni fino a ritrovare i numeri di partenza $a, n$ e riscrivi la relazione in modo takle da avere una combinazione lineare di $a$ e $n$
+$$
+a \cdot x + n \cdot y = 1
+$$
+A questo punto avremo che $x$ è l'inverso modulare di $a \mod{n}$.
+
+
+**Crittografia e decrittografia**
+Ottenuti i valori $n, e, d$, possiamo scrivere la chiave pubblica e privata:
 La **chiave pubblica** è costituita dalla coppia **$(n, e)$**.
 La **chiave privata** è costituita dalla coppia **$(n, d)$**.
+
+Dato il messaggio $m$, il messaggio criptato $c$ è:
+$$
+c = m^e \mod{n}
+$$
+Per decriptarlo:
+$$
+m = c^d \mod{n}
+$$
