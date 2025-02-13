@@ -9,6 +9,8 @@
 
 using namespace std;
 
+BIGNUM* euclidean(BIGNUM*, BIGNUM*);
+
 int main() {
     //per eseguire operazioni
     BN_CTX *ctx = BN_CTX_new();
@@ -41,6 +43,16 @@ int main() {
     BN_add_word(p, 1);
     BN_add_word(q, 1);
 
+    //scelgo e a piacere
+    BIGNUM* e = BN_new();
+    BN_dec2bn(&e,"65537");
+
+
+    //calcolo d come l'inverso di e modulo phi
+    BIGNUM* d = BN_new();
+    d = euclidean(e, phi);
+
+    
 
     //dealloco la memoria
     BN_free(p);
@@ -51,8 +63,48 @@ int main() {
     return 0;
 }
 
-void log(){
+//algoritmo di euclide esteso
+BIGNUM* euclidean(BIGNUM* num, BIGNUM* mod){
+    BN_CTX *ctx = BN_CTX_new();
+    BIGNUM *old_y = BN_new(), *y = BN_new(), *new_y = BN_new();
+    BIGNUM *old_r = BN_new(), *r = BN_new(), *new_r = BN_new();
+    BIGNUM *q = BN_new();
+
+    BN_zero(old_y);
+    BN_one(y);
+
     
+    BN_copy(old_r, mod);
+    BN_mod(r, num, mod, ctx);
+    
+
+    while(!BN_is_zero(r)){
+        BN_div(q, new_r, old_r, r, ctx);
+        BN_copy(old_r, r);
+        BN_copy(r, new_r);
+
+
+        BN_mul(y, y, q, ctx);
+        BN_sub(new_y, old_y, y);
+        BN_div(y, nullptr, y, q, ctx);
+
+        BN_copy(old_y, y);
+        BN_copy(y, new_y);      
+    }
+
+
+    BN_free(y);
+    BN_free(new_y);
+    BN_free(old_r);
+    BN_free(r);
+    BN_free(new_r);
+    BN_free(q);
+    BN_CTX_free(ctx);
+
+    if(BN_is_negative(old_y)) 
+        BN_add(old_y, old_y, mod);
+
+    return old_y;
 }
 
 
