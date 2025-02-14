@@ -9,7 +9,15 @@
 
 using namespace std;
 
-BIGNUM* euclidean(BIGNUM*, BIGNUM*);
+BIGNUM* euclidean(BIGNUM*, BIGNUM*);        //euclide esteso
+BIGNUM* toBN(string);                       //da stringa a big num
+string toString(BIGNUM*);                   //da big num a stringa
+BIGNUM* encrypt(string, BIGNUM*, BIGNUM*);  //funzione per criptare
+string decrypt(BIGNUM*, BIGNUM*, BIGNUM*);  //funzione per decriptare
+
+
+
+
 
 int main() {
     //per eseguire operazioni
@@ -52,8 +60,11 @@ int main() {
     BIGNUM* d = BN_new();
     d = euclidean(e, phi);
 
-    
+    string prova = "Ciao mamma";
 
+    cout<<decrypt(encrypt(prova, n, e), n, d)<<endl;
+
+    
     //dealloco la memoria
     BN_free(p);
     BN_free(q);
@@ -62,6 +73,10 @@ int main() {
     BN_CTX_free(ctx);
     return 0;
 }
+
+
+
+
 
 //algoritmo di euclide esteso
 BIGNUM* euclidean(BIGNUM* num, BIGNUM* mod){
@@ -107,4 +122,75 @@ BIGNUM* euclidean(BIGNUM* num, BIGNUM* mod){
     return old_y;
 }
 
+
+
+
+
+//encrypt and decrypt the number
+BIGNUM* encrypt(string str, BIGNUM* n, BIGNUM* e){
+    BN_CTX* ctx = BN_CTX_new();
+    BIGNUM* msg = toBN(str);
+    BN_mod_exp(msg, msg, e, n, ctx);
+
+    BN_CTX_free(ctx);
+
+    return msg;
+}
+
+string decrypt(BIGNUM* num, BIGNUM* n, BIGNUM* d){
+    BN_CTX* ctx = BN_CTX_new();
+    string msg;
+
+    BN_mod_exp(num, num, d, n, ctx);
+    msg = toString(num);
+
+    BN_CTX_free(ctx);
+
+    return msg;
+}
+
+
+
+
+
+//da stringa a BIGNUM
+BIGNUM* toBN(string str){
+    BIGNUM* sum = BN_new();
+    BN_zero(sum);
+
+    BIGNUM* addend = BN_new();
+    BN_one(addend);
+
+    for(int i=0; i<str.length(); i++){
+        BN_mul_word(addend, str[i]);
+        BN_add(sum, sum, addend);
+
+
+        BN_div_word(addend, str[i]);
+        BN_mul_word(addend, 1000);
+    }
+
+    BN_free(addend);
+
+    return sum;
+}
+
+//da BIGNUM a stringa
+string toString(BIGNUM* num){
+    string str = "";
+
+    BIGNUM* thous = BN_new();
+    BN_dec2bn(&thous, "1000");
+
+    BN_CTX* ctx = BN_CTX_new();    
+
+    while(!BN_is_zero(num)){
+        str += BN_mod_word(num, 1000);
+        BN_div(num, nullptr, num, thous, ctx);
+    }
+
+    BN_free(thous);
+    BN_CTX_free(ctx);
+    return str;
+}
 
