@@ -1,3 +1,13 @@
+/*
+*
+*  Hermetica RSA
+*  author: zeenyk
+*
+*/
+
+
+
+#include <utility>
 #include <iostream>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -12,9 +22,12 @@ using namespace std;
 BIGNUM* euclidean(BIGNUM*, BIGNUM*);        //euclide esteso
 BIGNUM* toBN(string);                       //da stringa a big num
 string toString(BIGNUM*);                   //da big num a stringa
-BIGNUM* encrypt(string, BIGNUM*, BIGNUM*);  //funzione per criptare
-string decrypt(BIGNUM*, BIGNUM*, BIGNUM*);  //funzione per decriptare
 
+
+BIGNUM* encrypt(string, pair<BIGNUM*, BIGNUM*>);                                    //funzione per criptare
+string decrypt(BIGNUM*, pair<BIGNUM*, BIGNUM*>);                                    //funzione per decriptare
+pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>, BIGNUM*);           //genera la chiave pubblica presi {p, q}, e
+pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>, BIGNUM*);            //genera la chiave privata presi {p, q}, e
 
 
 
@@ -34,47 +47,69 @@ int main() {
     cout<<(BN_dec2bn(&p, pString) ? "Number initialized correctly" : "Error initializing the number")<<endl;
     cout<<(BN_dec2bn(&q, qString) ? "Number initialized correctly" : "Error initializing the number")<<endl;
 
-
-    //un elemento della coppia della chiave sia pubblica sia privata
-    BIGNUM *n = BN_new();
-
-    //il modulo per calcolare l'inverso modulare di e
-    BIGNUM *phi = BN_new();
-
-    cout<<(BN_mul(n, p, q, ctx) ? "Multiplication executed with success" : "Error multiplying the numbers")<<endl;
-
-    BN_sub_word(p, 1);
-    BN_sub_word(q, 1);
-
-    cout<<(BN_mul(phi, p, q, ctx) ? "Multiplication executed with success" : "Error multiplying the numbers")<<endl;
-
-    BN_add_word(p, 1);
-    BN_add_word(q, 1);
-
     //scelgo e a piacere
     BIGNUM* e = BN_new();
     BN_dec2bn(&e,"65537");
 
 
-    //calcolo d come l'inverso di e modulo phi
-    BIGNUM* d = BN_new();
-    d = euclidean(e, phi);
-
-    string prova = "Ciao mamma";
-
-    cout<<decrypt(encrypt(prova, n, e), n, d)<<endl;
 
     
     //dealloco la memoria
     BN_free(p);
     BN_free(q);
-    BN_free(n);
-    BN_free(phi);
+    BN_free(e);
     BN_CTX_free(ctx);
     return 0;
 }
 
 
+
+
+
+pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
+    BN_CTX *ctx = BN_CTX_new();
+
+    BIGNUM *n = BN_new();
+    BIGNUM* p = pq.first;
+    BIGNUM* q = pq.first;
+
+    BN_mul(n, p, q, ctx);
+
+    BN_free(p);
+    BN_free(q);
+    BN_CTX_free(ctx);
+
+    return {n, e};
+}
+
+//
+pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
+    BN_CTX *ctx = BN_CTX_new();
+
+    BIGNUM *n = BN_new();
+    BIGNUM *phi = BN_new();
+    BIGNUM* p = pq.first;
+    BIGNUM* q = pq.first;
+
+    BN_mul(n, p, q, ctx);
+
+    BN_sub_word(p, 1);
+    BN_sub_word(q, 1);
+
+    BN_mul(phi, p, q, ctx);
+
+    BN_add_word(p, 1);
+    BN_add_word(q, 1);
+
+
+    BIGNUM* d = euclidean(e, phi);
+
+    BN_free(p);
+    BN_free(q);
+    BN_CTX_free(ctx);
+
+    return {n, d};
+}
 
 
 
@@ -124,12 +159,14 @@ BIGNUM* euclidean(BIGNUM* num, BIGNUM* mod){
 
 
 
-
-
 //encrypt and decrypt the number
-BIGNUM* encrypt(string str, BIGNUM* n, BIGNUM* e){
+BIGNUM* encrypt(string str, pair<BIGNUM*, BIGNUM*> public_key){
     BN_CTX* ctx = BN_CTX_new();
     BIGNUM* msg = toBN(str);
+    BIGNUM* n = public_key.first;
+    BIGNUM* e = public_key.second;
+
+
     BN_mod_exp(msg, msg, e, n, ctx);
 
     BN_CTX_free(ctx);
@@ -137,9 +174,11 @@ BIGNUM* encrypt(string str, BIGNUM* n, BIGNUM* e){
     return msg;
 }
 
-string decrypt(BIGNUM* num, BIGNUM* n, BIGNUM* d){
+string decrypt(BIGNUM* num, pair<BIGNUM*, BIGNUM*> private_key){
     BN_CTX* ctx = BN_CTX_new();
     string msg;
+    BIGNUM* n = private_key.first;
+    BIGNUM* d = private_key.second;
 
     BN_mod_exp(num, num, d, n, ctx);
     msg = toString(num);
@@ -193,4 +232,3 @@ string toString(BIGNUM* num){
     BN_CTX_free(ctx);
     return str;
 }
-
