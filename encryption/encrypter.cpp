@@ -53,11 +53,11 @@ int main() {
     auto pvk = generate_private({p, q}, e);
 
 
-    string msg = "O/r5g@G{xHTL/8599O/G6})#6sv:mSPX}D*fdQ}yyTaD(2=xbL";
+    string msg = "Ciaooooooooooooooooooooo";
 
-    cout<<msg<<endl;
+
     cout<<decrypt(encrypt(msg, pbk), pvk);
-
+    
     
     //dealloco la memoria
     BN_free(p);
@@ -74,7 +74,7 @@ int main() {
 pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
     BN_CTX *ctx = BN_CTX_new();
 
-    BIGNUM *n = BN_new();
+    BIGNUM* n = BN_new();
     BIGNUM* p = pq.first;
     BIGNUM* q = pq.second;
 
@@ -218,18 +218,12 @@ BIGNUM* toBN(string str){
 //da BIGNUM a stringa
 string toString(BIGNUM* num){
     string str = "";
-
-    BIGNUM* thous = BN_new();
-    BN_dec2bn(&thous, "1000");
-
-    BN_CTX* ctx = BN_CTX_new();    
+    
 
     while(!BN_is_zero(num)){
         str += BN_mod_word(num, 1000);
-        BN_div(num, nullptr, num, thous, ctx);
+        BN_div_word(num, 1000);
     }
 
-    BN_free(thous);
-    BN_CTX_free(ctx);
     return str;
 }
