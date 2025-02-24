@@ -26,22 +26,38 @@ string toString(BIGNUM*);                   //da big num a stringa
 
 BIGNUM* encrypt(string, pair<BIGNUM*, BIGNUM*>);                                    //funzione per criptare
 string decrypt(BIGNUM*, pair<BIGNUM*, BIGNUM*>);                                    //funzione per decriptare
-pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>, BIGNUM*);           //genera la chiave pubblica presi {p, q}, e
-pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>, BIGNUM*);            //genera la chiave privata presi {p, q}, e
+
+pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>);           //genera la chiave pubblica presi {p, q}, e
+pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>);            //genera la chiave privata presi {p, q}, e
 
 string log(); //stampa del log
 
+const string E = "65537";
 
 
 
 
-
-
+//main
 int main(){
 
+    BIGNUM* p = BN_new();
+    BN_generate_prime_ex(p, 512, 1, nullptr, nullptr, nullptr);
+
+    BIGNUM* q = BN_new();
+    BN_generate_prime_ex(q, 512, 1, nullptr, nullptr, nullptr);
+
+    auto pb = generate_public({p, q});
+    auto pv = generate_private({p, q});
+
+    string msg = "Me so sburato, camadonna, quan'e' bbono l'odore della fregna\n";
+
+    cout<<log()<<decrypt(encrypt(msg, pb), pv);
 
     return 0;
 }
+
+
+
 
 
 
@@ -60,12 +76,15 @@ string log() {
 
 
 //genera chiavi pubblica e privata
-pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
+pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>pq){
     BN_CTX *ctx = BN_CTX_new();
 
     BIGNUM* n = BN_new();
     BIGNUM* p = pq.first;
     BIGNUM* q = pq.second;
+
+    BIGNUM* e = BN_new();
+    BN_dec2bn(&e, E.c_str());
 
     BN_mul(n, p, q, ctx);
 
@@ -74,13 +93,16 @@ pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
     return {n, e};
 }
 
-pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
+pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>pq){
     BN_CTX *ctx = BN_CTX_new();
 
     BIGNUM *n = BN_new();
     BIGNUM *phi = BN_new();
     BIGNUM* p = pq.first;
     BIGNUM* q = pq.second;
+
+    BIGNUM* e = BN_new();
+    BN_dec2bn(&e, E.c_str());
 
     BN_mul(n, p, q, ctx);
 
@@ -96,6 +118,7 @@ pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>pq, BIGNUM* e){
     BIGNUM* d = euclidean(e, phi);
 
     BN_CTX_free(ctx);
+    BN_free(e);
 
     return {n, d};
 }
