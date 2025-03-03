@@ -14,9 +14,6 @@
 #include <string.h>
 #include <openssl/bn.h> //interi da 64 byte (512 bit), ottimizzata per RSA
 
-#include <time.h> //per il log
-#include <iomanip>
-
 using namespace std;
 
 BIGNUM* euclidean(BIGNUM*, BIGNUM*);        //euclide esteso
@@ -30,46 +27,7 @@ string decrypt(BIGNUM*, pair<BIGNUM*, BIGNUM*>);                                
 pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>);           //genera la chiave pubblica presi {p, q}, e
 pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>);            //genera la chiave privata presi {p, q}, e
 
-string log(); //stampa del log
-
 const string E = "65537";
-
-
-
-
-//main
-int main(){
-
-    BIGNUM* p = BN_new();
-    BN_generate_prime_ex(p, 512, 1, nullptr, nullptr, nullptr);
-
-    BIGNUM* q = BN_new();
-    BN_generate_prime_ex(q, 512, 1, nullptr, nullptr, nullptr);
-
-    auto pb = generate_public({p, q});
-    auto pv = generate_private({p, q});
-
-    string msg = "Me so sburato, camadonna, quan'e' bbono l'odore della fregna\n";
-
-    cout<<log()<<decrypt(encrypt(msg, pb), pv);
-
-    return 0;
-}
-
-
-
-
-
-
-//tempo per il log;
-string log() {
-    time_t now = time(nullptr); // Ottieni il tempo corrente
-    tm* localTime = localtime(&now); // Converti in ora locale
-
-    ostringstream oss;
-    oss << put_time(localTime, "%Y-%m-%d %H:%M:%S"); // Formattazione
-    return "[" + oss.str() + "] ";
-}
 
 
 
