@@ -1,6 +1,8 @@
 #include <iostream>
-#include <string.h>
-#include <time.h> 
+#include <fstream>
+#include <optional>
+#include <sstream>
+#include <ctime>
 #include <iomanip>
 
 //Tipologia testo
@@ -36,18 +38,24 @@
 using namespace std;
 
 template <typename... Args>
-void log(string str, Args... args) {
-    std::initializer_list<const char*> lista = {args...};
+void log(std::ostream& os, string str, Args... args) {
+    // Stampa i codici ANSI o altri argomenti
+    if(&os == &cout) ((os << args), ...);
 
-    for (const char* code : lista) {
-        std::cout << code;
-    }
-
-    time_t now = time(nullptr); // Ottieni il tempo corrente
-    tm* localTime = localtime(&now); // Converti in ora locale
-
+    // Ottieni il timestamp
+    time_t now = time(nullptr);
+    tm* localTime = localtime(&now);
     ostringstream oss;
-    oss << put_time(localTime, "%Y-%m-%d %H:%M:%S"); // Formattazione
+    oss << put_time(localTime, "%Y-%m-%d %H:%M:%S");
 
-    cout<<"[" + oss.str() + "] " + str <<RESET<<endl;
+    // Stampa il log
+    string logStr = "[" + oss.str() + "] ";
+    os << logStr << str << endl;
+
+    if(&os == &cout) cout<<RESET;
+}
+
+template <typename... Args>
+void log(string str, Args... args) {
+    log(cout, str, args...);
 }

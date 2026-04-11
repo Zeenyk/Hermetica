@@ -3,12 +3,12 @@
 ## **Socket**
 
 
-## **Crittografia RSA**
+## **1. Crittografia RSA**
 Per questo progetto useremo **l'algoritmo** di crittografia asimmetrico **RSA** (Rivest - Shamir - Adleman).
 Consiste nell'uso di due chiavi, una pubblica $(n, e)$ e una privata $(n, d)$.
 Il funzionamente è descritto in seguito.
 
-**Descrizione dell'algoritmo**
+### **1.1 Descrizione dell'algoritmo**
 Siano $p, q$ due numeri primi.
 Calcoliamo $n$ come prodotto di $p, q$
 
@@ -34,7 +34,20 @@ $$
 
 Per calcolarlo possiamo usare l'algoritmo di Eclide esteso, che permette di trovare l'inverso modulare di un numero.
 
-**Algoritmo di euclide esteso**
+Ottenuti i valori $n, e, d$, possiamo scrivere la chiave pubblica e privata:
+La **chiave pubblica** è costituita dalla coppia **$(n, e)$**.
+La **chiave privata** è costituita dalla coppia **$(n, d)$**.
+
+Dato il messaggio $m$, il messaggio criptato $c$ è:
+$$
+c = m^e \mod{n}
+$$
+Per decriptarlo:
+$$
+m = c^d \mod{n}
+$$
+
+### **1.2 Algoritmo di euclide esteso**
 Siano $a, b$ due numeri che costituiscono la seguente relazione:
 
 $$
@@ -58,18 +71,3 @@ $$
 a \cdot x + n \cdot y = 1
 $$
 A questo punto avremo che $x$ è l'inverso modulare di $a \mod{n}$.
-
-
-**Crittografia e decrittografia**
-Ottenuti i valori $n, e, d$, possiamo scrivere la chiave pubblica e privata:
-La **chiave pubblica** è costituita dalla coppia **$(n, e)$**.
-La **chiave privata** è costituita dalla coppia **$(n, d)$**.
-
-Dato il messaggio $m$, il messaggio criptato $c$ è:
-$$
-c = m^e \mod{n}
-$$
-Per decriptarlo:
-$$
-m = c^d \mod{n}
-$$

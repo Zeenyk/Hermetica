@@ -5,9 +5,6 @@
 *
 */
 
-
-
-#include <utility>
 #include <iostream>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -28,9 +25,6 @@ pair<BIGNUM*, BIGNUM*> generate_private(pair<BIGNUM*, BIGNUM*>);           //gen
 pair<BIGNUM*, BIGNUM*> generate_public(pair<BIGNUM*, BIGNUM*>);            //genera la chiave privata presi {p, q}, e
 
 const string E = "65537";
-
-
-
 
 
 //genera chiavi pubblica e privata
